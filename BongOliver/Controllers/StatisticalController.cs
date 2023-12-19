@@ -26,5 +26,11 @@ namespace BongOliver.Controllers
             var res = _statisticalService.StatisticalRevenue();
             return StatusCode(res.code, res);
         }
+        [HttpGet("most")]
+        public ActionResult StatisticalMostOfService()
+        {
+            var res = _statisticalService.StatisticalMostOfService();
+            return StatusCode(res.code, res);
+        }
     }
 }

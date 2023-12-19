@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using BongOliver.DTOs.Booking;
+using BongOliver.DTOs.Hair;
+using BongOliver.DTOs.Notification;
 using BongOliver.DTOs.Order;
 using BongOliver.DTOs.Product;
 using BongOliver.DTOs.Rate;
@@ -47,6 +49,12 @@ namespace BongOliver.Profiles
 
             CreateMap<Rate, CreateRateDTO>();
             CreateMap<CreateRateDTO, Rate>();
+
+            CreateMap<Notification, NotificationDTO>();
+            CreateMap<NotificationDTO, Notification>();
+
+            CreateMap<HairStyle, HairStyleDTO>();
+            CreateMap<HairStyleDTO, HairStyle>();
         }
     }
 }

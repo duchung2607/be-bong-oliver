@@ -69,6 +69,12 @@ namespace BongOliver.Services.AuthService
                 }
             }
 
+            if (currentUser.isDelete) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Tài khoản của bạn đã bị vô hiệu"
+            };
+
             return new ResponseDTO()
             {
                 code = 200,
@@ -189,7 +195,13 @@ namespace BongOliver.Services.AuthService
             if (user == null) return new ResponseDTO()
             {
                 code = 400,
-                message = "Email is not valid"
+                message = "Email không tồn tại"
+            };
+
+            if (!user.isVerify) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Email này chưa được xác thực"
             };
 
             string code = Guid.NewGuid().ToString("N").Substring(0, 10);
@@ -213,5 +225,37 @@ namespace BongOliver.Services.AuthService
             };
         }
 
+        public ResponseDTO CheckPass(string username, string pass)
+        {
+            var user = _userRepository.GetUserByUsername(username);
+            if (user == null) return new ResponseDTO()
+            {
+                code = 400,
+                message = "User không tồn tại"
+            };
+
+            using var hmac = new HMACSHA512(user.PasswordSalt);
+            var passwordBytes = hmac.ComputeHash(
+                Encoding.UTF8.GetBytes(pass)
+            );
+
+            for (int i = 0; i < user.PasswordHash.Length; i++)
+            {
+                if (user.PasswordHash[i] != passwordBytes[i])
+                {
+                    return new ResponseDTO()
+                    {
+                        code = 400,
+                        message = "Mật khẩu không chính xác!",
+                    };
+                }
+            }
+
+            return new ResponseDTO()
+            {
+                message = "Check success",
+            };
+
+        }
     }
 }

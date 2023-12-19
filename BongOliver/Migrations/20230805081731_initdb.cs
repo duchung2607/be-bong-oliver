@@ -6,26 +6,55 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BongOliver.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDb : Migration
+    public partial class initdb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Products",
+                name: "HairStyles",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    price = table.Column<double>(type: "float", nullable: false),
-                    create = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    update = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    type = table.Column<bool>(type: "bit", nullable: false),
+                    sortDes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => x.id);
+                    table.PrimaryKey("PK_HairStyles", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Items",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    dateModify = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Items", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductTypes",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductTypes", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,6 +98,31 @@ namespace BongOliver.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Walets", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Products",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    price = table.Column<double>(type: "float", nullable: false),
+                    create = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    update = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    productTypeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Products", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Products_ProductTypes_productTypeId",
+                        column: x => x.productTypeId,
+                        principalTable: "ProductTypes",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,13 +211,60 @@ namespace BongOliver.Migrations
                         column: x => x.stylistId,
                         principalTable: "Users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Bookings_Users_userId",
                         column: x => x.userId,
                         principalTable: "Users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HairStyleUser",
+                columns: table => new
+                {
+                    HairStylesid = table.Column<int>(type: "int", nullable: false),
+                    Usersid = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HairStyleUser", x => new { x.HairStylesid, x.Usersid });
+                    table.ForeignKey(
+                        name: "FK_HairStyleUser_HairStyles_HairStylesid",
+                        column: x => x.HairStylesid,
+                        principalTable: "HairStyles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HairStyleUser_Users_Usersid",
+                        column: x => x.Usersid,
+                        principalTable: "Users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -182,6 +283,36 @@ namespace BongOliver.Migrations
                     table.PrimaryKey("PK_Orders", x => x.id);
                     table.ForeignKey(
                         name: "FK_Orders_Users_userId",
+                        column: x => x.userId,
+                        principalTable: "Users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rates",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    rate = table.Column<int>(type: "int", nullable: false),
+                    comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    create = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    update = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    userId = table.Column<int>(type: "int", nullable: false),
+                    serviceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rates", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Rates_Services_serviceId",
+                        column: x => x.serviceId,
+                        principalTable: "Services",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rates_Users_userId",
                         column: x => x.userId,
                         principalTable: "Users",
                         principalColumn: "id",
@@ -208,6 +339,28 @@ namespace BongOliver.Migrations
                         name: "FK_BookingService_Services_Servicesid",
                         column: x => x.Servicesid,
                         principalTable: "Services",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    total = table.Column<double>(type: "float", nullable: false),
+                    time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    mode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    bookingId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Payments_Bookings_bookingId",
+                        column: x => x.bookingId,
+                        principalTable: "Bookings",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -252,6 +405,16 @@ namespace BongOliver.Migrations
                 column: "Servicesid");
 
             migrationBuilder.CreateIndex(
+                name: "IX_HairStyleUser_Usersid",
+                table: "HairStyleUser",
+                column: "Usersid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_UserId",
+                table: "Notifications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderProduct_Productsid",
                 table: "OrderProduct",
                 column: "Productsid");
@@ -259,6 +422,27 @@ namespace BongOliver.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_userId",
                 table: "Orders",
+                column: "userId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_bookingId",
+                table: "Payments",
+                column: "bookingId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_productTypeId",
+                table: "Products",
+                column: "productTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rates_serviceId",
+                table: "Rates",
+                column: "serviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rates_userId",
+                table: "Rates",
                 column: "userId");
 
             migrationBuilder.CreateIndex(
@@ -285,13 +469,25 @@ namespace BongOliver.Migrations
                 name: "BookingService");
 
             migrationBuilder.DropTable(
+                name: "HairStyleUser");
+
+            migrationBuilder.DropTable(
+                name: "Items");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "OrderProduct");
 
             migrationBuilder.DropTable(
-                name: "Bookings");
+                name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Services");
+                name: "Rates");
+
+            migrationBuilder.DropTable(
+                name: "HairStyles");
 
             migrationBuilder.DropTable(
                 name: "Orders");
@@ -300,10 +496,19 @@ namespace BongOliver.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "ServiceTypes");
+                name: "Bookings");
+
+            migrationBuilder.DropTable(
+                name: "Services");
+
+            migrationBuilder.DropTable(
+                name: "ProductTypes");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "ServiceTypes");
 
             migrationBuilder.DropTable(
                 name: "Roles");

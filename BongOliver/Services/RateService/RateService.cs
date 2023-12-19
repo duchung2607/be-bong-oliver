@@ -50,39 +50,74 @@ namespace BongOliver.Services.RateService
             else return new ResponseDTO() { message = "Đánh giá thất bại" };
         }
 
-    public ResponseDTO DeleteRate(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ResponseDTO GetRateById(int id)
-    {
-        var rate = _rateRepository.GetRateById(id);
-        if (rate == null) return new ResponseDTO()
+        public ResponseDTO DeleteRate(int id)
         {
-            code = 400,
-            message = "Id is not valid"
-        };
+            var rate = _rateRepository.GetRateById(id);
+            if (rate == null) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Rate id không tồn tại"
+            };
+            _rateRepository.DeleteRate(rate);
+            if (_rateRepository.IsSaveChanges()) return new ResponseDTO() { message = "Xóa rate thành công" };
+            else return new ResponseDTO()
+            {
+                code = 400,
+                message = "Xóa thất bại"
+            };
+        }
 
-        return new ResponseDTO()
+        public ResponseDTO GetRateById(int id)
         {
-            data = _mapper.Map<RateDTO>(rate)
-        };
-    }
+            var rate = _rateRepository.GetRateById(id);
+            if (rate == null) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Id is not valid"
+            };
 
-    public ResponseDTO GetRates()
-    {
-        var rates = _rateRepository.GetRates();
-        var rateDTOs = rates.Select(_mapper.Map<Rate, RateDTO>).ToList();
-        return new ResponseDTO()
+            return new ResponseDTO()
+            {
+                data = _mapper.Map<RateDTO>(rate)
+            };
+        }
+
+        public ResponseDTO GetRateByService(int id)
         {
-            data = rateDTOs,
-        };
-    }
+            var service = _serviceRepository.GetServiceById(id);
+            if (service == null) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Service không tồn tại"
+            };
 
-    public ResponseDTO UpdateRate(RateDTO rateDTO)
-    {
-        throw new NotImplementedException();
+            var rates = _rateRepository.GetRateByService(id);
+            if (rates.Count() == 0) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Chưa có đánh giá"
+            };
+            var rateDTOS = rates.Select(_mapper.Map<Rate, RateDTO>).ToList();
+            return new ResponseDTO()
+            {
+                data = rateDTOS
+            };
+        }
+
+        public ResponseDTO GetRates(int? page = 1, int? pageSize = 10)
+        {
+            var rates = _rateRepository.GetRates(page, pageSize);
+            var rateDTOs = rates.Select(_mapper.Map<Rate, RateDTO>).ToList();
+            return new ResponseDTO()
+            {
+                total = _rateRepository.GetTotalRate(),
+                data = rateDTOs,
+            };
+        }
+
+        public ResponseDTO UpdateRate(RateDTO rateDTO)
+        {
+            throw new NotImplementedException();
+        }
     }
-}
 }

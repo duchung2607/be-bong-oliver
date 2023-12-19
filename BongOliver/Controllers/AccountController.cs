@@ -1,6 +1,8 @@
 ﻿using BongOliver.DTOs.Order;
 using BongOliver.DTOs.User;
+using BongOliver.Services.AuthService;
 using BongOliver.Services.EmailService;
+using BongOliver.Services.PaymentService;
 using BongOliver.Services.UserService;
 using BongOliver.Services.VnPayService;
 using Microsoft.AspNetCore.Authorization;
@@ -17,11 +19,16 @@ namespace BongOliver.Controllers
         private readonly IUserService _userService;
         private readonly IEmailService _emailService;
         private readonly IVnPayService _vnPayService;
-        public AccountController(IUserService userService, IEmailService emailService, IVnPayService vnPayService)
+        private readonly IAuthService _authService;
+        private readonly IPaymentService _paymentService;
+        public AccountController(IUserService userService, IEmailService emailService, IVnPayService vnPayService
+            , IAuthService authService, IPaymentService paymentService)
         {
             _userService = userService;
             _emailService = emailService;
             _vnPayService = vnPayService;
+            _authService = authService;
+            _paymentService = paymentService;
         }
         [HttpGet]
         public ActionResult My()
@@ -64,6 +71,24 @@ namespace BongOliver.Controllers
             var claims = HttpContext.User.Claims.ToList();
             var username = claims[0].Value.ToString();
             var res = await _vnPayService.CreateUrlPayIn(username, money);
+            return StatusCode(res.code, res);
+        }
+
+        [HttpPost("checkpass")]
+        public async Task<ActionResult> CheckPass(string pass)
+        {
+            var claims = HttpContext.User.Claims.ToList();
+            var username = claims[0].Value.ToString();
+            var res = _authService.CheckPass(username, pass);
+            return StatusCode(res.code, res);
+        }
+
+        [HttpPost("paywalet")]
+        public async Task<IActionResult> PayWalet(int bookingId)
+        {
+            var claims = HttpContext.User.Claims.ToList();
+            var username = claims[0].Value.ToString();
+            var res = await _userService.PayMentWithWalet(username, bookingId);
             return StatusCode(res.code, res);
         }
 

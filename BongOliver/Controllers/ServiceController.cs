@@ -21,6 +21,12 @@ namespace BongOliver.Controllers
             var res = _serviceService.GetServices(page,pageSize,key,sortBy);
             return StatusCode(res.code, res);
         }
+        [HttpPost("ids")]
+        public ActionResult GetServiceByIds(List<int> ids)
+        {
+            var res = _serviceService.GetServiceByIds(ids);
+            return StatusCode(res.code, res);
+        }
         [HttpGet("{id}")]
         public ActionResult GetServiceById(int id)
         {
@@ -47,10 +53,34 @@ namespace BongOliver.Controllers
             var res = _serviceService.UpdateService(serviceDTO, id);
             return StatusCode(res.code, res);
         }
+        [HttpGet("most")]
+        public ActionResult GetMostOfService(int? size = 5)
+        {
+            var res = _serviceService.GetMostOfService(size);
+            return StatusCode(res.code, res);
+        }
         [HttpGet("type")]
         public ActionResult GetTypes()
         {
             var res = _serviceService.GetServiceTypes();
+            return StatusCode(res.code, res);
+        }
+        [HttpDelete("type/{id}")]
+        public ActionResult DeleteType(int id)
+        {
+            var res = _serviceService.DeleteServiceTypes(id);
+            return StatusCode(res.code, res);
+        }
+        [HttpPost("type")]
+        public ActionResult CreateType(string name)
+        {
+            var res = _serviceService.CreateServiceTypes(name);
+            return StatusCode(res.code, res);
+        }
+        [HttpPut("type/{id}")]
+        public ActionResult UpdateType(int id, string name)
+        {
+            var res = _serviceService.UpdateServiceTypes(id, name);
             return StatusCode(res.code, res);
         }
     }

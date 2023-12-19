@@ -1,4 +1,5 @@
 ﻿using Azure;
+using BongOliver.Models.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
@@ -20,7 +21,9 @@ namespace BongOliver.Models
         public DbSet<Item> Items { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Rate> Rates { get; set; }
-
+        //public DbSet<Message> Messages { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<HairStyle> HairStyles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>()

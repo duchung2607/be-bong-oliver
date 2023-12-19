@@ -66,8 +66,6 @@ namespace BongOliver.Repositories.UserRepository
         }
         public void UpdateUser(User user)
         {
-            //_dataContext.Users.Update(user);
-
             _dataContext.Entry(user).State = EntityState.Modified;
         }
 

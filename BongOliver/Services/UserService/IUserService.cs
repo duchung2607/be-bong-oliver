@@ -11,6 +11,7 @@ namespace BongOliver.Services.UserService
         ResponseDTO GetUserByUsername(string username);
         ResponseDTO UpdateUser(UserDTO user);
         ResponseDTO PayIn(string username, double money);
+        Task<ResponseDTO> PayMentWithWalet(string username, int bookingId);
         ResponseDTO DeleteUser(string username);
         ResponseDTO GetStylist();
         ResponseDTO CreateUser(CreateUserDTO createUser);
@@ -20,5 +21,6 @@ namespace BongOliver.Services.UserService
         bool EmailIsValid(string email);
         ResponseDTO VerifyEmail(string username);
         ResponseDTO ChangePass(ChangePassDTO changePassDTO, string username);
+        ResponseDTO GetUserByIds(List<int> ids);
     }
 }

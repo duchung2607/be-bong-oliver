@@ -17,6 +17,7 @@ namespace BongOliver.Services.AuthService
         //ResponseDTO SendEmail(string to,string subject, string body);
         ResponseDTO ForgotPassword(string email);
         ResponseDTO VerifyEmail(string email, string token);
+        ResponseDTO CheckPass(string username, string pass);
         //ResponseDTO Register(RegisterUserDTO registerUserDTO);
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BongOliver.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230519071229_UpdatePayment")]
-    partial class UpdatePayment
+    [Migration("20230909005925_Init DB v2")]
+    partial class InitDBv2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,38 @@ namespace BongOliver.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("BongOliver.Models.HairStyle", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("sortDes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("type")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.ToTable("HairStyles");
+                });
+
             modelBuilder.Entity("BongOliver.Models.Item", b =>
                 {
                     b.Property<int>("id")
@@ -91,6 +123,39 @@ namespace BongOliver.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("BongOliver.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("BongOliver.Models.Order", b =>
@@ -204,6 +269,42 @@ namespace BongOliver.Migrations
                     b.HasKey("id");
 
                     b.ToTable("ProductTypes");
+                });
+
+            modelBuilder.Entity("BongOliver.Models.Rate", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("create")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("rate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("serviceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("update")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("serviceId");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("Rates");
                 });
 
             modelBuilder.Entity("BongOliver.Models.Role", b =>
@@ -394,6 +495,21 @@ namespace BongOliver.Migrations
                     b.ToTable("BookingService");
                 });
 
+            modelBuilder.Entity("HairStyleUser", b =>
+                {
+                    b.Property<int>("HairStylesid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Usersid")
+                        .HasColumnType("int");
+
+                    b.HasKey("HairStylesid", "Usersid");
+
+                    b.HasIndex("Usersid");
+
+                    b.ToTable("HairStyleUser");
+                });
+
             modelBuilder.Entity("OrderProduct", b =>
                 {
                     b.Property<int>("Ordersid")
@@ -424,6 +540,17 @@ namespace BongOliver.Migrations
                         .IsRequired();
 
                     b.Navigation("Stylist");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BongOliver.Models.Notification", b =>
+                {
+                    b.HasOne("BongOliver.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -459,6 +586,25 @@ namespace BongOliver.Migrations
                         .IsRequired();
 
                     b.Navigation("ProductType");
+                });
+
+            modelBuilder.Entity("BongOliver.Models.Rate", b =>
+                {
+                    b.HasOne("BongOliver.Models.Service", "Service")
+                        .WithMany("Rates")
+                        .HasForeignKey("serviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BongOliver.Models.User", "User")
+                        .WithMany("Rates")
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Service");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BongOliver.Models.Service", b =>
@@ -506,6 +652,21 @@ namespace BongOliver.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HairStyleUser", b =>
+                {
+                    b.HasOne("BongOliver.Models.HairStyle", null)
+                        .WithMany()
+                        .HasForeignKey("HairStylesid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BongOliver.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("Usersid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("OrderProduct", b =>
                 {
                     b.HasOne("BongOliver.Models.Order", null)
@@ -537,6 +698,11 @@ namespace BongOliver.Migrations
                     b.Navigation("users");
                 });
 
+            modelBuilder.Entity("BongOliver.Models.Service", b =>
+                {
+                    b.Navigation("Rates");
+                });
+
             modelBuilder.Entity("BongOliver.Models.ServiceType", b =>
                 {
                     b.Navigation("Services");
@@ -546,7 +712,11 @@ namespace BongOliver.Migrations
                 {
                     b.Navigation("Bookings");
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("Orders");
+
+                    b.Navigation("Rates");
                 });
 
             modelBuilder.Entity("BongOliver.Models.Walet", b =>

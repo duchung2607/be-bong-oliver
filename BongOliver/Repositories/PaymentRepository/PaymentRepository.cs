@@ -26,7 +26,7 @@ namespace BongOliver.Repositories.PaymentRepository
         {
             try
             {
-                return await _context.Payments.ToListAsync();
+                return await _context.Payments.OrderByDescending(p=>p.time).ToListAsync();
             }catch(Exception ex)
             {
                 return null;
@@ -45,7 +45,7 @@ namespace BongOliver.Repositories.PaymentRepository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<Payment> PaymentGetPaymentById(long id)
+        public async Task<Payment> PaymentGetPaymentById(int id)
         {
             return await _context.Payments.FindAsync(id);
         }

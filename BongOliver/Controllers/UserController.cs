@@ -74,5 +74,12 @@ namespace BongOliver.Controllers
                 return Ok(ex.Message);
             }
         }
+
+        [HttpPost("ids")]
+        public ActionResult GetUserByIds(List<int> ids)
+        {
+            var res = _userService.GetUserByIds(ids);
+            return StatusCode(res.code, res);
+        }
     }
 }

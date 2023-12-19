@@ -2,7 +2,10 @@
 using BongOliver.DTOs.Response;
 using BongOliver.DTOs.User;
 using BongOliver.Models;
+using BongOliver.Repositories.BookingRepository;
+using BongOliver.Repositories.PaymentRepository;
 using BongOliver.Repositories.UserRepository;
+using BongOliver.Services.BookingService;
 using BongOliver.Services.EmailService;
 using BongOliver.Services.VnPayService;
 using System.Security.Cryptography;
@@ -17,12 +20,18 @@ namespace BongOliver.Services.UserService
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
         private readonly IVnPayService _vnPayService;
-        public UserService(IUserRepository userRepository, IMapper mapper, IEmailService emailService, IVnPayService vnPayService)
+        private readonly IBookingRepository _bookingRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        public UserService(IUserRepository userRepository, IMapper mapper, IEmailService emailService
+            , IVnPayService vnPayService, IBookingRepository bookingRepository
+            , IPaymentRepository paymentRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _emailService = emailService;
             _vnPayService = vnPayService;
+            _bookingRepository = bookingRepository;
+            _paymentRepository = paymentRepository;
         }
 
         public ResponseDTO ChangePass(ChangePassDTO changePassDTO, string username)
@@ -175,9 +184,9 @@ namespace BongOliver.Services.UserService
                 code = 404,
                 message = "Username is not valid"
             };
-            //userDelete.isDelete = true;
-            //_userRepository.UpdateUser(userDelete);
-            _userRepository.DeleteUser(userDelete);
+            userDelete.isDelete = !userDelete.isDelete;
+            _userRepository.UpdateUser(userDelete);
+            //_userRepository.DeleteUser(userDelete);
             if (_userRepository.IsSaveChanges()) return new ResponseDTO();
             else return new ResponseDTO()
             {
@@ -211,6 +220,21 @@ namespace BongOliver.Services.UserService
         public ResponseDTO GetUserById(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public ResponseDTO GetUserByIds(List<int> ids)
+        {
+            var userDTOs = new List<UserDTO>();
+            foreach (var id in ids)
+            {
+                var user = _userRepository.GetUserById(id);
+                if(user != null)
+                userDTOs.Add(_mapper.Map<UserDTO>(user));
+            }
+            return new ResponseDTO()
+            {
+                data = userDTOs
+            };
         }
 
         public ResponseDTO GetUserByUsername(string username)
@@ -255,6 +279,70 @@ namespace BongOliver.Services.UserService
         public ResponseDTO PayIn(string username, double money)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ResponseDTO> PayMentWithWalet(string username, int bookingId)
+        {
+            var user = _userRepository.GetUserByUsername(username);
+            if (user == null) return new ResponseDTO()
+            {
+                code = 400,
+                message = "User không tồn tại"
+            };
+            var booking = _bookingRepository.GetBookingById(bookingId);
+            if (booking == null) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Booking không tồn tại"
+            };
+            if (booking.status == "done") return new ResponseDTO()
+            {
+                code = 400,
+                message = "Booking đã hoàn thành"
+            };
+            if (booking.User.username != user.username) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Bạn không thể thanh toán booking của người khác"
+            };
+
+            double price = 0;
+            foreach (Service service in booking.Services)
+            {
+                price += service.price;
+            }
+
+            if (user.Walet.money < price) return new ResponseDTO()
+            {
+                code = 400,
+                message = "Không đủ số dư"
+            };
+            user.Walet.money -= price;
+            _userRepository.UpdateUser(user);
+            booking.status = "done";
+            _bookingRepository.UpdateBooking(booking);
+
+            if (_userRepository.IsSaveChanges())
+            {
+                var payment = new Payment();
+                payment.bookingId = bookingId;
+                payment.time = DateTime.Now;
+                payment.total = price;
+                payment.mode = "WALET";
+                await _paymentRepository.CreatePaymentAsync(payment);
+                await _paymentRepository.IsSaveChange();
+
+                return new ResponseDTO()
+                {
+                    message = "Thanh toán thành công"
+                };
+            }    
+            else
+            return new ResponseDTO()
+            {
+                code = 400,
+                message = "Thanh toán thất bại"
+            };
         }
 
         public ResponseDTO UpdateUser(UserDTO user)
@@ -306,7 +394,7 @@ namespace BongOliver.Services.UserService
             if (user == null) return new ResponseDTO() { code = 400, message = "Username is not valid" };
             if (user.isVerify) return new ResponseDTO() { code = 400, message = "Your email is verify" };
 
-            return _emailService.SendEmail(user.email, "Verify your email", "Please click this link to verify: https://localhost:7125/api/verify?email=" + user.email.Split("@")[0] + "%40" + "gmail.com" + "&token=" + user.token); ;
+            return _emailService.SendEmail(user.email, "Verify your email", "Please click this link to verify: http://localhost:3000/verify-return?email=" + user.email.Split("@")[0] + "%40" + "gmail.com" + "&token=" + user.token); ;
         }
     }
 }

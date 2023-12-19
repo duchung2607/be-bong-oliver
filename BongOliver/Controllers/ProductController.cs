@@ -1,5 +1,4 @@
 ﻿using BongOliver.DTOs.Product;
-using BongOliver.Services.FileService;
 using BongOliver.Services.ProductService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +9,10 @@ namespace BongOliver.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IFileService _fileService;
         private readonly IProductService _productService;
-        public ProductController(IProductService productService, IFileService fileService)
+        public ProductController(IProductService productService)
         {
             _productService = productService;
-            _fileService = fileService;
         }
         [HttpGet]
         public ActionResult GetProduct(int? page = 1, int? pageSize = 10, string? key = "", string? sortBy = "id")

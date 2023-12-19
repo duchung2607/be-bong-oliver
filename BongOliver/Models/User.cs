@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BongOliver.Models.Seed;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BongOliver.Models
@@ -36,5 +37,7 @@ namespace BongOliver.Models
         public virtual List<Booking> Bookings { get; set; }
         public virtual List<Order> Orders { get; set; }
         public virtual List<Rate> Rates { get; set; }
+        public virtual List<Notification> Notifications { get; set; }
+        public virtual List<HairStyle> HairStyles { get; set; }
     }
 }

@@ -36,7 +36,7 @@ namespace BongOliver.Repositories.BookingRepository
                 //    query = query.OrderBy(u => u.name);
                 //    break;
                 default:
-                    query = query.OrderBy(u => u.id);
+                    query = query.OrderByDescending(u => u.id);
                     break;
             }
             if (page == null || pageSize == null || sortBy == null) { return query.ToList(); }

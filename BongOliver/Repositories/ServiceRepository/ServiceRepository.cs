@@ -1,4 +1,5 @@
 ﻿using BongOliver.Models;
+using Firebase.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace BongOliver.Repositories.ServiceRepository
@@ -16,9 +17,28 @@ namespace BongOliver.Repositories.ServiceRepository
             _context.Services.Add(service);
         }
 
+        public void CreateTypes(ServiceType serviceType)
+        {
+            _context.ServiceTypes.Add(serviceType);
+        }
+
         public void DeleteService(Service service)
         {
             _context.Services.Remove(service);
+        }
+
+        public void DeleteTypes(ServiceType serviceType)
+        {
+            _context.ServiceTypes.Remove(serviceType);
+        }
+
+        public List<Service> GetMostOfService(int? size = 5)
+        {
+            var query = _context.Services.Include(s => s.Bookings).AsQueryable();
+
+            query = query.OrderBy(s => s.id).OrderByDescending(s => s.Bookings.Count);
+
+            return query.Take(size.Value).ToList();
         }
 
         public Service GetServiceById(int id)
@@ -57,6 +77,11 @@ namespace BongOliver.Repositories.ServiceRepository
             return _context.Services.Count();
         }
 
+        public ServiceType GetTypeById(int id)
+        {
+            return _context.ServiceTypes.FirstOrDefault(t => t.id == id);
+        }
+
         public List<ServiceType> GetTypes()
         {
             return _context.ServiceTypes.ToList();
@@ -70,6 +95,11 @@ namespace BongOliver.Repositories.ServiceRepository
         public void UpdateService(Service service)
         {
             _context.Services.Update(service);
+        }
+
+        public void UpdateTypes(ServiceType serviceType)
+        {
+            _context.Entry(serviceType).State = EntityState.Modified;
         }
     }
 }

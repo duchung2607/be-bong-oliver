@@ -1,4 +1,7 @@
 ﻿using BongOliver.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Globalization;
 
 namespace BongOliver.Repositories.RateRepository
 {
@@ -16,17 +19,34 @@ namespace BongOliver.Repositories.RateRepository
 
         public void DeleteRate(Rate rate)
         {
-            throw new NotImplementedException();
+            _context.Rates.Remove(rate);
         }
 
         public Rate GetRateById(int id)
         {
-            return _context.Rates.FirstOrDefault(r => r.id == id);
+            return _context.Rates.Include(r => r.User).Include(r => r.Service).FirstOrDefault(r => r.id == id);
         }
 
-        public List<Rate> GetRates()
+        public List<Rate> GetRateByService(int id)
         {
-            return _context.Rates.ToList();
+            return _context.Rates.Include(r => r.User).Include(r => r.Service).Where(r => r.Service.id == id).ToList();
+        }
+
+        public List<Rate> GetRates(int? page = 1, int? pageSize = 10)
+        {
+            var query = _context.Rates.Include(r => r.User).Include(r => r.Service).AsQueryable();
+
+            query = query.OrderByDescending(r => r.create);
+
+            if (page == null || pageSize == null) { return query.ToList(); }
+            else
+                return query.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            //return _context.Rates.ToList();
+        }
+
+        public int GetTotalRate()
+        {
+            return _context.Rates.Count();
         }
 
         public bool IsSaveChanges()
@@ -36,7 +56,7 @@ namespace BongOliver.Repositories.RateRepository
 
         public void UpdateRate(Rate rate)
         {
-            throw new NotImplementedException();
+            _context.Entry(rate).State = EntityState.Modified;
         }
     }
 }

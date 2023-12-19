@@ -6,5 +6,6 @@ namespace BongOliver.Services.StatisticalService
     {
         ResponseDTO StatisticalUser();
         ResponseDTO StatisticalRevenue();
+        ResponseDTO StatisticalMostOfService();
     }
 }
